@@ -8,26 +8,22 @@ const API = (() => {
   return '/api/sheepcounter/stats'
 })()
 
-function getStoredKey() {
-  let key = sessionStorage.getItem('sheepcounter_key')
-  if (key) return key
-  const url = new URL(location)
-  if (url.searchParams.has('key')) {
-    key = url.searchParams.get('key')
-    sessionStorage.setItem('sheepcounter_key', key)
-    return key
-  }
-  const script = document.querySelector('script[src$="dashboard.js"]')
-  if (script && script.dataset.apiKey) {
-    key = script.dataset.apiKey
-    sessionStorage.setItem('sheepcounter_key', key)
-    return key
-  }
-  return ''
+const LOGIN_PAGE = '/login.html'
+
+function getKey() {
+  return sessionStorage.getItem('sheepcounter_key') || ''
 }
 
-function setStoredKey(key) {
+function setKey(key) {
   sessionStorage.setItem('sheepcounter_key', key)
+}
+
+function clearKey() {
+  sessionStorage.removeItem('sheepcounter_key')
+}
+
+function redirectLogin() {
+  location.href = LOGIN_PAGE
 }
 
 const $ = (sel) => document.querySelector(sel)
@@ -52,34 +48,6 @@ const els = {
   statusDot:      $('#statusDot'),
   statusText:     $('#statusText'),
 }
-
-const loginOverlay = $('#loginOverlay')
-const loginKey = $('#loginKey')
-const loginBtn = $('#loginBtn')
-const loginError = $('#loginError')
-
-function showLogin(wrong) {
-  loginOverlay.style.display = 'flex'
-  loginError.style.display = wrong ? 'block' : 'none'
-  if (wrong) loginError.textContent = 'Invalid key'
-  loginKey.focus()
-}
-
-function hideLogin() {
-  loginOverlay.style.display = 'none'
-}
-
-loginBtn.addEventListener('click', () => {
-  const key = loginKey.value.trim()
-  if (!key) return
-  setStoredKey(key)
-  loginError.style.display = 'none'
-  fetchStats()
-})
-
-loginKey.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') loginBtn.click()
-})
 
 function setStatus(state) {
   els.statusDot.className = 'status-dot ' + state
@@ -199,43 +167,24 @@ function updateDashboard(data) {
 }
 
 async function fetchStats() {
+  const key = getKey()
+  if (!key) {
+    redirectLogin()
+    return
+  }
+
   setStatus('loading')
   try {
-    const headers = {}
-    const key = getStoredKey()
-    if (key) headers['X-API-Key'] = key
-    const res = await fetch(API, { headers })
+    const res = await fetch(API, { headers: { 'X-API-Key': key } })
     if (res.status === 401) {
-      setStatus('error')
-      showLogin(!!key)
+      clearKey()
+      redirectLogin()
       return
     }
     if (!res.ok) throw new Error('HTTP ' + res.status)
     const data = await res.json()
     updateDashboard(data)
     setStatus('connected')
-    hideLogin()
-  } catch (err) {
-    console.error('SheepCounter: fetch failed', err)
-    setStatus('error')
-  }
-}
-    if (!res.ok) {
-      // Check if it's a config error
-      if (res.status === 500) {
-        const errorData = await res.json()
-        if (errorData.error && errorData.error.includes('STATS_API_KEY not set')) {
-          els.statusText.textContent = 'Error: Please set STATS_API_KEY environment variable'
-          els.statusDot.className = 'status-dot error'
-          return
-        }
-      }
-      throw new Error('HTTP ' + res.status)
-    }
-    const data = await res.json()
-    updateDashboard(data)
-    setStatus('connected')
-    hideLogin()
   } catch (err) {
     console.error('SheepCounter: fetch failed', err)
     setStatus('error')

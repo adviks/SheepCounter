@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SheepCounter — Login</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="login-body">
+  <main class="login-main">
+    <div class="login-box">
+      <svg class="login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 13c0 2.5 1.5 5 5 5s5-2.5 5-5"/>
+        <path d="M5 10c0-2.5 1.5-5 5-5"/>
+        <path d="M14 5c3.5 0 5 2.5 5 5"/>
+        <path d="M12 8c0-2 3-3 5-1"/>
+        <path d="M11 12c0-1.5-2-2-3-1"/>
+        <path d="M12 12v4"/>
+        <path d="M10 14h4"/>
+      </svg>
+      <h1 class="login-title">SheepCounter</h1>
+      <p class="login-subtitle">Enter your API key to access the dashboard</p>
+      <form id="loginForm" autocomplete="off">
+        <input type="password" id="loginKey" placeholder="API key" autocomplete="new-password" spellcheck="false">
+        <button type="submit" id="loginBtn">Unlock</button>
+        <p id="loginError" class="login-error"></p>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    ;(function() {
+      var API = (function() {
+        var url = new URL(location)
+        if (url.searchParams.has('api')) return url.searchParams.get('api')
+        var script = document.querySelector('script[src$="login.js"]')
+        if (script && script.dataset.api) return script.dataset.api
+        return '/api/sheepcounter/stats'
+      })()
+
+      var DASHBOARD = '/'
+
+      var form  = document.getElementById('loginForm')
+      var input = document.getElementById('loginKey')
+      var btn   = document.getElementById('loginBtn')
+      var errEl = document.getElementById('loginError')
+
+      function showError(msg) {
+        errEl.textContent = msg
+        errEl.style.display = 'block'
+      }
+
+      function hideError() {
+        errEl.style.display = 'none'
+      }
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault()
+        var key = input.value.trim()
+        if (!key) return
+
+        hideError()
+        btn.disabled = true
+        btn.textContent = 'Verifying…'
+
+        fetch(API, { headers: { 'X-API-Key': key } }).then(function(res) {
+          if (res.status === 200) {
+            sessionStorage.setItem('sheepcounter_key', key)
+            location.href = DASHBOARD
+            return
+          }
+          if (res.status === 401) {
+            showError('Invalid key')
+            btn.disabled = false
+            btn.textContent = 'Unlock'
+            return
+          }
+          if (res.status === 500) {
+            return res.json().then(function(data) {
+              if (data.error && data.error.indexOf('STATS_API_KEY not set') !== -1) {
+                showError('Server misconfigured: STATS_API_KEY env var not set')
+              } else {
+                showError('Server error: ' + (data.error || 'unknown'))
+              }
+              btn.disabled = false
+              btn.textContent = 'Unlock'
+            })
+          }
+          showError('Unexpected error (HTTP ' + res.status + ')')
+          btn.disabled = false
+          btn.textContent = 'Unlock'
+        }).catch(function() {
+          showError('Cannot reach server')
+          btn.disabled = false
+          btn.textContent = 'Unlock'
+        })
+      })
+
+      input.focus()
+    })()
+  </script>
+</body>
+</html>

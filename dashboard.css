@@ -402,67 +402,91 @@ body {
   padding: 16px 0;
 }
 
-/* Login overlay */
-.login-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 100;
+/* Login page */
+.login-body {
+  display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  background: #f4f1ec;
 }
 
-.login-box {
+.login-main {
+  width: 100%;
+  max-width: 380px;
+  padding: 24px;
+}
+
+.login-main .login-box {
   background: #fff;
-  padding: 32px;
+  padding: 40px 32px 32px;
   border-radius: 8px;
   text-align: center;
-  max-width: 360px;
-  width: 90%;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  border: 1px solid #ddd8d0;
 }
 
-.login-box h2 {
-  font-size: 18px;
-  color: #3b6e3b;
+.login-icon {
+  width: 36px;
+  height: 36px;
+  color: #7db87d;
   margin-bottom: 8px;
 }
 
-.login-box p {
+.login-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3b6e3b;
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
   font-size: 13px;
   color: #888;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
-.login-box input {
+.login-main .login-box input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid #ddd8d0;
-  font-size: 14px;
+  font-size: 15px;
   margin-bottom: 12px;
   box-sizing: border-box;
+  font-family: inherit;
 }
 
-.login-box button {
+.login-main .login-box input:focus {
+  outline: none;
+  border-color: #7db87d;
+  box-shadow: 0 0 0 2px rgba(125,184,125,0.2);
+}
+
+.login-main .login-box button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background: #3b6e3b;
   color: #fff;
   border: none;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
 }
 
-.login-box button:hover {
+.login-main .login-box button:hover {
   background: #2d5a2d;
 }
 
-.login-error {
+.login-main .login-box button:disabled {
+  background: #9cba9c;
+  cursor: default;
+}
+
+.login-main .login-error {
   font-size: 12px;
   color: #b94444;
-  margin-top: 8px;
+  margin-top: 10px;
   display: none;
 }
 
