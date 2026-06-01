@@ -1,6 +1,6 @@
 # SheepCounter
 
-Privacy-friendly web analytics. Forked from [GoatCounter](https://www.goatcounter.com/).
+Privacy-friendly web analytics. Inspired from [GoatCounter](https://www.goatcounter.com/).
 
 No cookies, no personal data tracking. Just page views, referrers, browsers, systems, screen sizes, and more.
 
@@ -12,15 +12,6 @@ No cookies, no personal data tracking. Just page views, referrers, browsers, sys
 - **Self-hosted** — full control over your analytics data
 - **Click tracking** — track button clicks and custom events
 - **Bot detection** — automatic filtering of known bots
-
-## Quick start
-
-```bash
-npm install
-npx netlify dev
-```
-
-Open [http://localhost:8888](http://localhost:8888).
 
 ## Project structure
 
