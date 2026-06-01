@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SheepCounter — Demo</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <style>
+    .demo-banner {
+      background: #2b6a2b;
+      color: #fff;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Host Grotesk', sans-serif;
+    }
+    .demo-banner a {
+      color: #c1e0c1;
+      text-decoration: underline;
+    }
+    .demo-banner a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="demo-banner">
+    🐑 This is a demo with mock data.&nbsp;
+    <a href="/">Go to real dashboard</a>
+  </div>
+
+  <header class="header">
+    <div class="header-inner">
+      <h1 class="logo">
+        <img class="logo-icon" src="sheepv3.svg" alt="">
+        SheepCounter
+      </h1>
+      <div class="header-right">
+        <div class="period-group" id="periodGroup">
+          <button class="period-btn active" data-range="24h">24h</button>
+          <button class="period-btn" data-range="7d">7d</button>
+          <button class="period-btn" data-range="30d">30d</button>
+          <button class="period-btn" data-range="all">All</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="kpi-row">
+      <div class="kpi">
+        <span class="kpi-label">Visits</span>
+        <span class="kpi-value" id="totalViews">—</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Unique</span>
+        <span class="kpi-value" id="uniqueVisitors">—</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Today</span>
+        <span class="kpi-value" id="todayViews">—</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Events</span>
+        <span class="kpi-value" id="eventCount">—</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Bots</span>
+        <span class="kpi-value" id="botCount">—</span>
+      </div>
+    </div>
+
+    <section class="card card-full">
+      <div class="card-hdr">
+        <h2 class="card-title">Views over time</h2>
+        <span class="card-sub" id="viewsSubtitle"></span>
+      </div>
+      <div class="card-body" id="viewsOverTime"><p class="empty">Loading...</p></div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Top pages</h2>
+          <span class="card-sub" id="pagesSubtitle"></span>
+        </div>
+        <div class="card-body" id="topPages"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Traffic sources</h2>
+          <span class="card-sub" id="sourcesSubtitle"></span>
+        </div>
+        <div class="card-body" id="trafficSources"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Hourly activity</h2>
+          <span class="card-sub" id="hourlySubtitle"></span>
+        </div>
+        <div class="card-body" id="hourlyActivity"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Devices</h2>
+          <span class="card-sub" id="devicesSubtitle"></span>
+        </div>
+        <div class="card-body" id="deviceTypes"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <div class="grid-3">
+      <section class="card">
+        <div class="card-hdr"><h2 class="card-title">Browsers</h2></div>
+        <div class="card-body" id="browsers"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr"><h2 class="card-title">Systems</h2></div>
+        <div class="card-body" id="systems"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr"><h2 class="card-title">Languages</h2></div>
+        <div class="card-body" id="languages"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Screen sizes</h2>
+          <span class="card-sub" id="screensSubtitle"></span>
+        </div>
+        <div class="card-body" id="screenSizes"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Search terms</h2>
+          <span class="card-sub" id="searchSubtitle"></span>
+        </div>
+        <div class="card-body" id="searchTerms"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <section class="card card-full">
+      <div class="card-hdr">
+        <h2 class="card-title">Recent views</h2>
+        <span class="card-sub" id="recentSubtitle"></span>
+      </div>
+      <div class="card-body" id="recentViews"><p class="empty">No data yet</p></div>
+    </section>
+
+    <section class="card card-full">
+      <div class="card-hdr">
+        <h2 class="card-title">About this demo</h2>
+      </div>
+      <div class="card-body">
+        <p class="setup-text">All data shown is randomly generated for demonstration purposes. No real analytics data is displayed.</p>
+        <p class="setup-text">To use SheepCounter on your own site, follow the <a href="/">setup instructions on the real dashboard</a>.</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span id="lastUpdated">Last updated: —</span>
+    </footer>
+  </main>
+
+  <script>
+    // ── Helpers ──
+
+    function esc(s) {
+      var d = document.createElement('div')
+      d.textContent = s
+      return d.innerHTML
+    }
+
+    function pct(a, b) {
+      return b > 0 ? Math.round((a / b) * 100) : 0
+    }
+
+    function total(arr) {
+      return arr.reduce(function(s, v) { return s + v }, 0)
+    }
+
+    function ago(iso) {
+      var d = Date.now() - new Date(iso).getTime()
+      var s = Math.floor(d / 1000)
+      if (s < 10) return 'just now'
+      if (s < 60) return s + 's ago'
+      var m = Math.floor(s / 60)
+      if (m < 60) return m + 'm ago'
+      var h = Math.floor(m / 60)
+      if (h < 24) return h + 'h ago'
+      return Math.floor(h / 24) + 'd ago'
+    }
+
+    function rng(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min
+    }
+
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)]
+    }
+
+    // ── Renderers (reuse same logic as real dashboard) ──
+
+    function renderBars(data, labelKey, valueKey) {
+      if (!data || data.length === 0) return '<p class="empty">No data yet</p>'
+      var mx = Math.max.apply(null, data.map(function(d) { return d[valueKey] }), 1)
+      return '<div class="bar-chart">' + data.map(function(d) {
+        var h = Math.max((d[valueKey] / mx) * 100, 1)
+        return '<div class="bar-col"><div class="bar" style="height:' + h + '%"></div><span class="bar-label">' + esc(String(d[labelKey])) + '</span><span class="bar-val">' + d[valueKey] + '</span></div>'
+      }).join('') + '</div>'
+    }
+
+    function renderHbars(items) {
+      if (!items || items.length === 0) return '<p class="empty">No data yet</p>'
+      var mx = items[0].count
+      var totalCount = total(items.map(function(i) { return i.count }))
+      return items.map(function(item) {
+        var w = pct(item.count, mx)
+        var p = pct(item.count, totalCount) + '%'
+        return '<div class="hbar"><span class="hbar-lbl">' + esc(item.name) + '</span><div class="hbar-trk"><div class="hbar-fill" style="width:' + w + '%"></div></div><span class="hbar-val">' + item.count.toLocaleString() + '</span><span class="hbar-pct">' + p + '</span></div>'
+      }).join('')
+    }
+
+    function renderPages(pages) {
+      if (!pages || pages.length === 0) return '<p class="empty">No data yet</p>'
+      var maxSpark = Math.max.apply(null, pages.map(function(p) { return Math.max.apply(null, p.daily) }), 1)
+      return pages.map(function(p) {
+        var bars = p.daily.map(function(c, i) {
+          var h = Math.max((c / maxSpark) * 24, 2)
+          var cls = i === p.daily.length - 1 ? 'spark-sel' : ''
+          return '<div class="spark-bar ' + cls + '" style="height:' + h + 'px"></div>'
+        }).join('')
+        var cls = p.change > 0 ? 'chg-up' : p.change < 0 ? 'chg-dn' : 'chg-0'
+        var arrow = p.change > 0 ? '▲' : p.change < 0 ? '▼' : '–'
+        var label = p.change !== 0 ? Math.abs(p.change) + '%' : ''
+        return '<div class="prow"><div class="spark">' + bars + '</div><span class="pcount">' + p.count + '</span><span class="pchg ' + cls + '">' + arrow + ' ' + label + '</span><div class="pinfo"><span class="ppath">' + esc(p.path) + '</span><span class="ptitle">' + esc(p.title) + '</span></div></div>'
+      }).join('')
+    }
+
+    function renderSources(domains) {
+      if (!domains || domains.length === 0) return '<p class="empty">All direct traffic</p>'
+      var mx = domains[0].count
+      return domains.map(function(d) {
+        var w = pct(d.count, mx)
+        return '<div class="hbar"><span class="hbar-lbl">' + esc(d.domain) + '</span><div class="hbar-trk"><div class="hbar-fill src-fill" style="width:' + w + '%"></div></div><span class="hbar-val">' + d.count.toLocaleString() + '</span><span class="hbar-pct">' + pct(d.count, total(domains.map(function(x) { return x.count }))) + '%</span></div>'
+      }).join('')
+    }
+
+    function renderDevices(types) {
+      if (!types || types.length === 0) return '<p class="empty">No data yet</p>'
+      var totalCount = total(types.map(function(t) { return t.count }))
+      var colors = { Mobile: '#7db87d', Tablet: '#c1dac1', Desktop: '#3b6e3b' }
+      return types.map(function(t) {
+        var p = pct(t.count, totalCount)
+        var c = colors[t.name] || '#aaa'
+        return '<div class="hbar"><span class="hbar-lbl"><span class="dev-dot" style="background:' + c + '"></span>' + esc(t.name) + '</span><div class="hbar-trk"><div class="hbar-fill" style="width:' + p + '%;background:' + c + '"></div></div><span class="hbar-val">' + t.count.toLocaleString() + '</span><span class="hbar-pct">' + p + '%</span></div>'
+      }).join('')
+    }
+
+    function renderTerms(terms) {
+      if (!terms || terms.length === 0) return '<p class="empty">No search traffic</p>'
+      var mx = terms[0].count
+      return terms.map(function(t) {
+        var w = pct(t.count, mx)
+        return '<div class="hbar"><span class="hbar-lbl">' + esc(t.term) + '</span><div class="hbar-trk"><div class="hbar-fill" style="width:' + w + '%"></div></div><span class="hbar-val">' + t.count.toLocaleString() + '</span></div>'
+      }).join('')
+    }
+
+    function renderRecent(views) {
+      if (!views || views.length === 0) return '<p class="empty">No data yet</p>'
+      return views.map(function(v) {
+        var badge = v.event ? '<span class="ev-badge">event</span>' : '<span class="vw-badge">view</span>'
+        var meta = [v.browser, v.os].filter(Boolean).join(' · ') || '—'
+        return '<div class="rrow"><span class="rpath">' + esc(v.path) + '</span><span class="rtitle">' + esc(v.title) + '</span><span class="rmeta"><span class="rref">' + esc(v.referrer) + '</span><span class="rtime">' + ago(v.time) + '</span></span><span class="rextra">' + meta + ' ' + badge + '</span></div>'
+      }).join('')
+    }
+
+    // ── Mock data generators ──
+
+    var NOW = new Date()
+
+    var PAGE_DATA = [
+      { path: '/', title: 'Home' },
+      { path: '/blog', title: 'Blog' },
+      { path: '/docs', title: 'Documentation' },
+      { path: '/pricing', title: 'Pricing' },
+      { path: '/about', title: 'About Us' },
+      { path: '/contact', title: 'Contact' },
+      { path: '/features', title: 'Features' },
+      { path: '/changelog', title: 'Changelog' },
+      { path: '/blog/getting-started', title: 'Getting Started' },
+      { path: '/docs/api', title: 'API Reference' },
+    ]
+
+    var REFERRERS = [
+      { domain: 'google.com', weight: 40 },
+      { domain: 'direct', weight: 35 },
+      { domain: 'twitter.com', weight: 10 },
+      { domain: 'github.com', weight: 8 },
+      { domain: 'reddit.com', weight: 6 },
+      { domain: 'duckduckgo.com', weight: 5 },
+      { domain: 'linkedin.com', weight: 4 },
+      { domain: 'bing.com', weight: 3 },
+      { domain: 'news.ycombinator.com', weight: 2 },
+    ]
+
+    var BROWSERS = [
+      { name: 'Chrome', weight: 52 },
+      { name: 'Safari', weight: 20 },
+      { name: 'Firefox', weight: 13 },
+      { name: 'Edge', weight: 9 },
+      { name: 'Opera', weight: 4 },
+      { name: 'Others', weight: 2 },
+    ]
+
+    var SYSTEMS = [
+      { name: 'Windows', weight: 34 },
+      { name: 'macOS', weight: 21 },
+      { name: 'iOS', weight: 18 },
+      { name: 'Android', weight: 16 },
+      { name: 'Linux', weight: 9 },
+      { name: 'Others', weight: 2 },
+    ]
+
+    var LANGS = [
+      { name: 'en-US', weight: 50 },
+      { name: 'en-GB', weight: 12 },
+      { name: 'fr', weight: 8 },
+      { name: 'de', weight: 8 },
+      { name: 'es', weight: 6 },
+      { name: 'ja', weight: 4 },
+      { name: 'pt-BR', weight: 4 },
+      { name: 'zh-CN', weight: 4 },
+      { name: 'it', weight: 2 },
+      { name: 'nl', weight: 2 },
+    ]
+
+    var SCREENS = [
+      { name: '≤639', weight: 22 },
+      { name: '640–1023', weight: 32 },
+      { name: '1024–1439', weight: 28 },
+      { name: '1440+', weight: 18 },
+    ]
+
+    var SEARCH_TERMS = [
+      'open source analytics', 'self hosted analytics', 'privacy friendly analytics',
+      'sheep counter review', 'simple analytics tool', 'free web analytics',
+      'cookie free tracking', 'GDPR analytics tool', 'lightweight analytics',
+      'open source goatcounter alternative',
+    ]
+
+    function weightedPick(items) {
+      var totalWeight = total(items.map(function(i) { return i.weight }))
+      var r = Math.random() * totalWeight
+      for (var i = 0; i < items.length; i++) {
+        r -= items[i].weight
+        if (r <= 0) return items[i]
+      }
+      return items[items.length - 1]
+    }
+
+    function makeHourly(count) {
+      var hours = []
+      for (var h = 0; h < 24; h++) {
+        var base
+        if (h < 6) base = 2
+        else if (h < 9) base = 8 + (h - 6) * 6
+        else if (h < 12) base = 26 + (h - 9) * 3
+        else if (h < 15) base = 35 - (h - 12) * 2
+        else if (h < 18) base = 29 - (h - 15) * 4
+        else if (h < 21) base = 17 - (h - 18) * 3
+        else base = 8 - (h - 21) * 2
+        base = Math.max(base, 1)
+        hours.push({ hour: h, count: Math.round(base * count / 200) + rng(0, 3) })
+      }
+      return hours
+    }
+
+    function generateData(range) {
+      var scale = { '24h': 1, '7d': 7, '30d': 30, 'all': 60 }[range] || 7
+      var base = 200 * scale
+      var totalViews = rng(base, base * 1.4)
+      var uniqueVisitors = Math.round(totalViews * rng(55, 70) / 100)
+      var todayViews = range === '24h' ? totalViews : rng(Math.round(base * 0.4), Math.round(base * 0.7))
+      var eventCount = Math.round(totalViews * rng(8, 16) / 100)
+      var botCount = Math.round(totalViews * rng(3, 7) / 100)
+
+      // Views over time
+      var viewsOverTime
+      if (range === '24h') {
+        viewsOverTime = makeHourly(totalViews).map(function(h) {
+          return { label: ('0' + h.hour).slice(-2) + ':00', count: h.count }
+        })
+      } else if (range === '7d') {
+        var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        var today = NOW.getDay()
+        viewsOverTime = []
+        for (var i = 6; i >= 0; i--) {
+          var d = (today - i + 7) % 7
+          var isWeekend = d === 0 || d === 6
+          var c = Math.round(totalViews / 7 * (isWeekend ? 0.5 : 1.2)) + rng(-5, 10)
+          viewsOverTime.push({ label: days[d], count: Math.max(c, 2) })
+        }
+      } else {
+        var n = range === '30d' ? 30 : 12
+        viewsOverTime = []
+        for (var i = 0; i < n; i++) {
+          var label
+          if (range === 'all') {
+            var d = new Date(NOW)
+            d.setMonth(d.getMonth() - (n - 1 - i))
+            label = d.toLocaleDateString('en', { month: 'short', year: '2-digit' })
+          } else {
+            label = (i + 1) + '/' + (NOW.getDate() - (n - 1 - i))
+          }
+          var c = Math.round(totalViews / n * (0.5 + Math.random())) + rng(1, 5)
+          viewsOverTime.push({ label: label, count: Math.max(c, 2) })
+        }
+      }
+
+      // Top pages
+      var topPages = PAGE_DATA.map(function(p, idx) {
+        var count = Math.round(totalViews * (0.3 - idx * 0.025)) + rng(5, 20)
+        var perPeriod = Math.max(Math.round(count / viewsOverTime.length), 1)
+        var daily = viewsOverTime.map(function() {
+          return perPeriod + rng(-Math.round(perPeriod * 0.4), Math.round(perPeriod * 0.4))
+        })
+        daily = daily.map(function(c) { return Math.max(c, 1) })
+        var last3 = total(daily.slice(-3))
+        var prev = total(daily.slice(0, -3))
+        var change = prev > 0 ? Math.round(((last3 - prev) / prev) * 100) : 0
+        return { path: p.path, title: p.title, count: count, change: change, daily: daily }
+      })
+      topPages.sort(function(a, b) { return b.count - a.count })
+
+      // Referrer domains
+      var referrerDomains = REFERRERS.map(function(r) {
+        return { domain: r.domain, count: Math.round(totalViews * r.weight / 100) + rng(1, 10) }
+      }).filter(function(r) { return r.count > 0 })
+      referrerDomains.sort(function(a, b) { return b.count - a.count })
+
+      // Hourly activity
+      var hourlyActivity = makeHourly(totalViews)
+
+      // Device types
+      var deviceTotals = { Mobile: 0, Tablet: 0, Desktop: 0 }
+      for (var i = 0; i < totalViews; i++) {
+        var r = Math.random()
+        if (r < 0.54) deviceTotals.Mobile++
+        else if (r < 0.90) deviceTotals.Desktop++
+        else deviceTotals.Tablet++
+      }
+      var deviceTypes = []
+      if (deviceTotals.Mobile > 0) deviceTypes.push({ name: 'Mobile', count: deviceTotals.Mobile })
+      if (deviceTotals.Desktop > 0) deviceTypes.push({ name: 'Desktop', count: deviceTotals.Desktop })
+      if (deviceTotals.Tablet > 0) deviceTypes.push({ name: 'Tablet', count: deviceTotals.Tablet })
+
+      function generateGroup(items) {
+        var totalWeight = total(items.map(function(i) { return i.weight }))
+        return items.map(function(item) {
+          return { name: item.name, count: Math.round(totalViews * item.weight / totalWeight) + rng(1, 8) }
+        })
+      }
+
+      var browsers = generateGroup(BROWSERS)
+      var systems = generateGroup(SYSTEMS)
+      var languages = generateGroup(LANGS)
+      var screenSizes = generateGroup(SCREENS)
+
+      // Search terms
+      var searchTerms = SEARCH_TERMS.slice(0, rng(4, 8)).map(function(term, idx) {
+        return { term: term, count: Math.round(totalViews * (0.06 - idx * 0.005)) + rng(1, 5) }
+      })
+
+      // Recent views
+      var recentViews = []
+      var paths = ['/', '/blog', '/docs', '/pricing', '/about', '/contact', '/features', '/changelog', '/blog/getting-started', '/docs/api', '/signup', '/login']
+      var titles = ['Home', 'Blog', 'Documentation', 'Pricing', 'About Us', 'Contact', 'Features', 'Changelog', 'Getting Started', 'API Reference', 'Sign Up', 'Log In']
+      var refs = ['direct', 'https://google.com', 'https://twitter.com', 'https://github.com', 'https://reddit.com', 'https://duckduckgo.com', 'https://linkedin.com', 'https://news.ycombinator.com']
+      var browsersList = ['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera']
+      var osList = ['Windows', 'macOS', 'iOS', 'Android', 'Linux']
+      var nowMs = NOW.getTime()
+      for (var i = 0; i < 25; i++) {
+        var idx = Math.floor(Math.random() * paths.length)
+        recentViews.push({
+          path: paths[idx],
+          title: titles[idx],
+          time: new Date(nowMs - i * rng(30000, 1800000)).toISOString(),
+          referrer: refs[Math.floor(Math.random() * refs.length)],
+          event: Math.random() < 0.15,
+          browser: browsersList[Math.floor(Math.random() * browsersList.length)],
+          os: osList[Math.floor(Math.random() * osList.length)],
+        })
+      }
+
+      return {
+        totalViews: totalViews,
+        uniqueVisitors: uniqueVisitors,
+        todayViews: todayViews,
+        eventCount: eventCount,
+        botCount: botCount,
+        range: range,
+        viewsOverTime: viewsOverTime,
+        topPages: topPages,
+        referrerDomains: referrerDomains,
+        hourlyActivity: hourlyActivity,
+        deviceTypes: deviceTypes,
+        browsers: browsers,
+        systems: systems,
+        languages: languages,
+        screenSizes: screenSizes,
+        searchTerms: searchTerms,
+        recentViews: recentViews,
+      }
+    }
+
+    // ── Dashboard update ──
+
+    function updateDashboard(data) {
+      var $ = function(id) { return document.getElementById(id) }
+
+      $('totalViews').textContent = data.totalViews.toLocaleString()
+      $('todayViews').textContent = data.todayViews.toLocaleString()
+      $('uniqueVisitors').textContent = data.uniqueVisitors.toLocaleString()
+      $('eventCount').textContent = data.eventCount.toLocaleString()
+      $('botCount').textContent = data.botCount.toLocaleString()
+
+      var vt = data.viewsOverTime
+      $('viewsOverTime').innerHTML = renderBars(vt, 'label', 'count')
+      var vtSum = vt ? total(vt.map(function(d) { return d.count })) : 0
+      $('viewsSubtitle').textContent = vtSum.toLocaleString() + ' in period'
+
+      $('topPages').innerHTML = renderPages(data.topPages)
+      var pageTotal = data.topPages ? data.topPages.reduce(function(s, p) { return s + p.count }, 0) : 0
+      $('pagesSubtitle').textContent = pageTotal ? pageTotal.toLocaleString() + ' visits' : ''
+
+      $('trafficSources').innerHTML = renderSources(data.referrerDomains)
+      $('sourcesSubtitle').textContent = data.totalViews + ' total'
+
+      $('hourlyActivity').innerHTML = renderBars(data.hourlyActivity, 'hour', 'count')
+      var hrSum = data.hourlyActivity ? total(data.hourlyActivity.map(function(h) { return h.count })) : 0
+      $('hourlySubtitle').textContent = hrSum.toLocaleString() + ' total'
+      $('hourlyActivity').querySelectorAll('.bar-label').forEach(function(el) {
+        el.textContent = el.textContent.padStart(2, '0') + ':00'
+      })
+
+      $('deviceTypes').innerHTML = renderDevices(data.deviceTypes)
+      var devSum = data.deviceTypes ? total(data.deviceTypes.map(function(d) { return d.count })) : 0
+      $('devicesSubtitle').textContent = devSum.toLocaleString() + ' total'
+
+      $('browsers').innerHTML = renderHbars(data.browsers)
+      $('systems').innerHTML = renderHbars(data.systems)
+      $('languages').innerHTML = renderHbars(data.languages)
+
+      $('screenSizes').innerHTML = renderHbars(data.screenSizes)
+      var scSum = data.screenSizes ? total(data.screenSizes.map(function(s) { return s.count })) : 0
+      $('screensSubtitle').textContent = scSum.toLocaleString() + ' total'
+
+      $('searchTerms').innerHTML = renderTerms(data.searchTerms)
+      $('searchSubtitle').textContent = (data.searchTerms ? data.searchTerms.length : 0) + ' terms'
+
+      $('recentViews').innerHTML = renderRecent(data.recentViews)
+      $('recentSubtitle').textContent = (data.recentViews ? data.recentViews.length : 0) + ' views'
+
+      $('lastUpdated').textContent = 'Updated: ' + new Date().toLocaleTimeString()
+    }
+
+    // ── Period selector ──
+
+    var currentRange = (document.querySelector('.period-btn.active') || {}).dataset.range || '7d'
+    var periodBtns = document.querySelectorAll('.period-btn')
+
+    function loadDemo() {
+      var data = generateData(currentRange)
+      updateDashboard(data)
+    }
+
+    periodBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        periodBtns.forEach(function(b) { b.classList.remove('active') })
+        btn.classList.add('active')
+        currentRange = btn.dataset.range
+        loadDemo()
+      })
+    })
+
+    loadDemo()
+  </script>
+</body>
+</html>
