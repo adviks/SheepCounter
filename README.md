@@ -1,6 +1,6 @@
 # SheepCounter
 
-Privacy-friendly web analytics. Forked from [GoatCounter](https://www.goatcounter.com/).
+Privacy-friendly web analytics. Inspired from [GoatCounter](https://www.goatcounter.com/).
 
 No cookies, no personal data tracking. Just page views, referrers, browsers, systems, screen sizes, and more.
 
