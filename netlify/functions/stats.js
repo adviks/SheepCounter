@@ -14,8 +14,10 @@ function getClient() {
 const headers = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
 }
+
+const API_KEY = process.env.STATS_API_KEY
 
 function getDays(n) {
   const days = []
@@ -38,6 +40,13 @@ function countInRange(hits, start, end) {
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers }
+  }
+
+  if (API_KEY) {
+    const provided = event.queryStringParameters?.key || event.headers['x-api-key']
+    if (!provided || provided !== API_KEY) {
+      return { statusCode: 401, headers, body: JSON.stringify({ error: 'unauthorized' }) }
+    }
   }
 
   try {

@@ -8,6 +8,28 @@ const API = (() => {
   return '/api/sheepcounter/stats'
 })()
 
+function getStoredKey() {
+  let key = sessionStorage.getItem('sheepcounter_key')
+  if (key) return key
+  const url = new URL(location)
+  if (url.searchParams.has('key')) {
+    key = url.searchParams.get('key')
+    sessionStorage.setItem('sheepcounter_key', key)
+    return key
+  }
+  const script = document.querySelector('script[src$="dashboard.js"]')
+  if (script && script.dataset.apiKey) {
+    key = script.dataset.apiKey
+    sessionStorage.setItem('sheepcounter_key', key)
+    return key
+  }
+  return ''
+}
+
+function setStoredKey(key) {
+  sessionStorage.setItem('sheepcounter_key', key)
+}
+
 const $ = (sel) => document.querySelector(sel)
 const $$ = (sel) => document.querySelectorAll(sel)
 
@@ -30,6 +52,34 @@ const els = {
   statusDot:      $('#statusDot'),
   statusText:     $('#statusText'),
 }
+
+const loginOverlay = $('#loginOverlay')
+const loginKey = $('#loginKey')
+const loginBtn = $('#loginBtn')
+const loginError = $('#loginError')
+
+function showLogin(wrong) {
+  loginOverlay.style.display = 'flex'
+  loginError.style.display = wrong ? 'block' : 'none'
+  if (wrong) loginError.textContent = 'Invalid key'
+  loginKey.focus()
+}
+
+function hideLogin() {
+  loginOverlay.style.display = 'none'
+}
+
+loginBtn.addEventListener('click', () => {
+  const key = loginKey.value.trim()
+  if (!key) return
+  setStoredKey(key)
+  loginError.style.display = 'none'
+  fetchStats()
+})
+
+loginKey.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') loginBtn.click()
+})
 
 function setStatus(state) {
   els.statusDot.className = 'status-dot ' + state
@@ -151,16 +201,31 @@ function updateDashboard(data) {
 async function fetchStats() {
   setStatus('loading')
   try {
-    const res = await fetch(API)
+    const headers = {}
+    const key = getStoredKey()
+    if (key) headers['X-API-Key'] = key
+    const res = await fetch(API, { headers })
+    if (res.status === 401) {
+      setStatus('error')
+      showLogin(!!key)
+      return
+    }
     if (!res.ok) throw new Error('HTTP ' + res.status)
     const data = await res.json()
     updateDashboard(data)
     setStatus('connected')
+    hideLogin()
   } catch (err) {
     console.error('SheepCounter: fetch failed', err)
     setStatus('error')
   }
 }
+
+const origin = location.origin
+const setupEndpoint = $('#setupEndpoint')
+const setupSrc = $('#setupSrc')
+if (setupEndpoint) setupEndpoint.textContent = origin + '/count'
+if (setupSrc) setupSrc.textContent = origin + '/sheepcounter.js'
 
 fetchStats()
 setInterval(fetchStats, POLL_INTERVAL)

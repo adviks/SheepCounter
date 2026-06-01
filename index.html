@@ -94,10 +94,31 @@
       <div class="card-body" id="recentViews"><p class="empty">No data yet</p></div>
     </section>
 
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Setup</h2>
+      </div>
+      <div class="card-body">
+        <p class="setup-text">Add this script to any page you want to track:</p>
+        <pre class="setup-code">&lt;script data-sheepcounter="<span id="setupEndpoint">https://yourdomain.com/count</span>" async src="<span id="setupSrc">https://yourdomain.com/sheepcounter.js</span>"&gt;&lt;/script&gt;</pre>
+        <p class="setup-text">For event tracking, add <code>data-sheepcounter-click</code> to any element.</p>
+      </div>
+    </section>
+
     <footer class="footer">
       <span id="lastUpdated">Last updated: —</span>
     </footer>
   </main>
+
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+      <h2>SheepCounter</h2>
+      <p>Enter your API key to access the dashboard</p>
+      <input type="password" id="loginKey" placeholder="API key" autocomplete="off">
+      <button id="loginBtn">Unlock</button>
+      <p id="loginError" class="login-error">Invalid key</p>
+    </div>
+  </div>
 
   <script src="dashboard.js"></script>
 </body>
