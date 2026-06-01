@@ -21,81 +21,134 @@
         </svg>
         SheepCounter
       </h1>
-      <div class="header-status">
-        <span class="status-dot" id="statusDot"></span>
-        <span class="status-text" id="statusText">loading</span>
+      <div class="header-right">
+        <div class="period-group" id="periodGroup">
+          <button class="period-btn active" data-range="24h">24h</button>
+          <button class="period-btn" data-range="7d">7d</button>
+          <button class="period-btn" data-range="30d">30d</button>
+          <button class="period-btn" data-range="all">All</button>
+        </div>
+        <div class="header-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span class="status-text" id="statusText">loading</span>
+        </div>
       </div>
     </div>
   </header>
 
   <main class="main">
-    <div class="period">Last 7 days</div>
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <span class="stat-label">Visits</span>
-        <span class="stat-value" id="totalViews">—</span>
+    <div class="kpi-row">
+      <div class="kpi">
+        <span class="kpi-label">Visits</span>
+        <span class="kpi-value" id="totalViews">—</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Today</span>
-        <span class="stat-value" id="todayViews">—</span>
+      <div class="kpi">
+        <span class="kpi-label">Unique</span>
+        <span class="kpi-value" id="uniqueVisitors">—</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Unique</span>
-        <span class="stat-value" id="uniqueVisitors">—</span>
+      <div class="kpi">
+        <span class="kpi-label">Today</span>
+        <span class="kpi-value" id="todayViews">—</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Events</span>
-        <span class="stat-value" id="eventCount">—</span>
+      <div class="kpi">
+        <span class="kpi-label">Events</span>
+        <span class="kpi-value" id="eventCount">—</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Bots</span>
-        <span class="stat-value" id="botCount">—</span>
+      <div class="kpi">
+        <span class="kpi-label">Bots</span>
+        <span class="kpi-value" id="botCount">—</span>
       </div>
     </div>
 
-    <section class="card" id="pagesCard">
-      <div class="card-header">
-        <h2 class="card-title">Pages</h2>
-        <span class="card-subtitle" id="pagesSubtitle"></span>
+    <section class="card card-full">
+      <div class="card-hdr">
+        <h2 class="card-title">Views over time</h2>
+        <span class="card-sub" id="viewsSubtitle"></span>
       </div>
-      <div class="card-body" id="topPages"><p class="empty">No data yet</p></div>
+      <div class="card-body" id="viewsOverTime"><p class="empty">Loading...</p></div>
     </section>
 
-    <div class="widgets">
+    <div class="grid-2">
       <section class="card">
-        <div class="card-header"><h2 class="card-title">Views over time</h2></div>
-        <div class="card-body" id="viewsOverTime"><p class="empty">Loading...</p></div>
+        <div class="card-hdr">
+          <h2 class="card-title">Top pages</h2>
+          <span class="card-sub" id="pagesSubtitle"></span>
+        </div>
+        <div class="card-body" id="topPages"><p class="empty">No data yet</p></div>
       </section>
+
       <section class="card">
-        <div class="card-header"><h2 class="card-title">Top referrers</h2></div>
-        <div class="card-body" id="topReferrers"><p class="empty">No data yet</p></div>
-      </section>
-      <section class="card">
-        <div class="card-header"><h2 class="card-title">Browsers</h2></div>
-        <div class="card-body" id="browsers"><p class="empty">No data yet</p></div>
-      </section>
-      <section class="card">
-        <div class="card-header"><h2 class="card-title">Systems</h2></div>
-        <div class="card-body" id="systems"><p class="empty">No data yet</p></div>
-      </section>
-      <section class="card">
-        <div class="card-header"><h2 class="card-title">Languages</h2></div>
-        <div class="card-body" id="languages"><p class="empty">No data yet</p></div>
-      </section>
-      <section class="card">
-        <div class="card-header"><h2 class="card-title">Screen sizes</h2></div>
-        <div class="card-body" id="screenSizes"><p class="empty">No data yet</p></div>
+        <div class="card-hdr">
+          <h2 class="card-title">Traffic sources</h2>
+          <span class="card-sub" id="sourcesSubtitle"></span>
+        </div>
+        <div class="card-body" id="trafficSources"><p class="empty">No data yet</p></div>
       </section>
     </div>
 
-    <section class="card">
-      <div class="card-header"><h2 class="card-title">Recent views</h2></div>
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Hourly activity</h2>
+          <span class="card-sub" id="hourlySubtitle"></span>
+        </div>
+        <div class="card-body" id="hourlyActivity"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Devices</h2>
+          <span class="card-sub" id="devicesSubtitle"></span>
+        </div>
+        <div class="card-body" id="deviceTypes"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <div class="grid-3">
+      <section class="card">
+        <div class="card-hdr"><h2 class="card-title">Browsers</h2></div>
+        <div class="card-body" id="browsers"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr"><h2 class="card-title">Systems</h2></div>
+        <div class="card-body" id="systems"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr"><h2 class="card-title">Languages</h2></div>
+        <div class="card-body" id="languages"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Screen sizes</h2>
+          <span class="card-sub" id="screensSubtitle"></span>
+        </div>
+        <div class="card-body" id="screenSizes"><p class="empty">No data yet</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-hdr">
+          <h2 class="card-title">Search terms</h2>
+          <span class="card-sub" id="searchSubtitle"></span>
+        </div>
+        <div class="card-body" id="searchTerms"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <section class="card card-full">
+      <div class="card-hdr">
+        <h2 class="card-title">Recent views</h2>
+        <span class="card-sub" id="recentSubtitle"></span>
+      </div>
       <div class="card-body" id="recentViews"><p class="empty">No data yet</p></div>
     </section>
 
-    <section class="card">
-      <div class="card-header">
+    <section class="card card-full" id="setupCard">
+      <div class="card-hdr">
         <h2 class="card-title">Setup</h2>
       </div>
       <div class="card-body">

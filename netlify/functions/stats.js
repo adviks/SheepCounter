@@ -19,15 +19,59 @@ const headers = {
 
 const API_KEY = process.env.STATS_API_KEY
 
-function getDays(n) {
-  const days = []
-  for (let i = n - 1; i >= 0; i--) {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
-    d.setHours(0, 0, 0, 0)
-    days.push(d)
+function parseRange(str) {
+  if (str === '24h') return '24h'
+  if (str === '30d') return '30d'
+  if (str === 'all') return 'all'
+  return '7d'
+}
+
+function filterByRange(hits, range) {
+  const now = new Date()
+  if (range === '24h') {
+    const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    return hits.filter(h => new Date(h.time) >= cutoff)
   }
-  return days
+  if (range === '7d') {
+    const cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    return hits.filter(h => new Date(h.time) >= cutoff)
+  }
+  if (range === '30d') {
+    const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+    return hits.filter(h => new Date(h.time) >= cutoff)
+  }
+  return hits
+}
+
+function buildPeriods(range) {
+  const now = new Date()
+  const periods = []
+  if (range === '24h') {
+    for (let i = 23; i >= 0; i--) {
+      const d = new Date(now)
+      d.setHours(d.getHours() - i, 0, 0, 0)
+      periods.push(d)
+    }
+  } else {
+    const n = range === '30d' ? 30 : range === 'all' ? 30 : 7
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i)
+      d.setHours(0, 0, 0, 0)
+      periods.push(d)
+    }
+  }
+  return periods
+}
+
+function periodLabel(d, range) {
+  if (range === '24h') {
+    return d.getHours().toString().padStart(2, '0') + ':00'
+  }
+  if (range === '30d' || range === 'all') {
+    return (d.getMonth() + 1) + '/' + d.getDate()
+  }
+  return d.toLocaleDateString('en', { weekday: 'short' })
 }
 
 function countInRange(hits, start, end) {
@@ -52,6 +96,7 @@ exports.handler = async (event) => {
   }
 
   try {
+    const range = parseRange(event.queryStringParameters?.range)
     const db = getClient()
     const result = await db.execute('SELECT * FROM hits ORDER BY time ASC')
     const hits = result.rows.map(r => ({
@@ -68,28 +113,32 @@ exports.handler = async (event) => {
       lang: r.lang || 'en',
     }))
 
+    const filtered = filterByRange(hits, range)
+
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const todayHits = hits.filter(h => new Date(h.time) >= today)
-    const uniqueKeys = new Set(hits.map(h => `${h.path}:${h.screenWidth}`))
+    const uniqueKeys = new Set(filtered.map(h => `${h.path}:${h.screenWidth}`))
+    const eventCount = filtered.filter(h => h.event).length
+    const botCount = filtered.filter(h => h.bot > 0).length
 
-    const eventCount = hits.filter(h => h.event).length
-    const botCount = hits.filter(h => h.bot > 0).length
-
-    const days = getDays(7)
-    const viewsOverTime = days.map(d => {
-      const end = new Date(d)
-      end.setDate(end.getDate() + 1)
+    // Views over time (period buckets)
+    const periods = buildPeriods(range)
+    const viewsOverTime = periods.map(d => {
+      const end = range === '24h'
+        ? new Date(d.getTime() + 60 * 60 * 1000)
+        : new Date(d.getTime() + 24 * 60 * 60 * 1000)
       return {
-        date: d.toISOString().split('T')[0],
-        count: countInRange(hits, d, end),
-        label: d.toLocaleDateString('en', { weekday: 'short' }),
+        date: d.toISOString(),
+        count: countInRange(filtered, d, end),
+        label: periodLabel(d, range),
       }
     })
 
+    // Top pages with sparklines
     const pageCounts = {}
     const pageHits = {}
-    hits.forEach(h => {
+    filtered.forEach(h => {
       pageCounts[h.path] = (pageCounts[h.path] || 0) + 1
       if (!pageHits[h.path]) pageHits[h.path] = []
       pageHits[h.path].push(h)
@@ -98,20 +147,50 @@ exports.handler = async (event) => {
       .sort((a, b) => b[1] - a[1]).slice(0, 10)
       .map(([path, count]) => {
         const ph = pageHits[path]
-        const daily = days.map(d => {
-          const end = new Date(d)
-          end.setDate(end.getDate() + 1)
+        const daily = periods.map(d => {
+          const end = range === '24h'
+            ? new Date(d.getTime() + 60 * 60 * 1000)
+            : new Date(d.getTime() + 24 * 60 * 60 * 1000)
           return ph.filter(h => { const t = new Date(h.time); return t >= d && t < end }).length
         })
         const cur = daily.slice(-3).reduce((a, b) => a + b, 0)
-        const prev = daily.slice(0, 4).reduce((a, b) => a + b, 0)
+        const prev = daily.slice(0, daily.length - 3).reduce((a, b) => a + b, 0)
         const change = prev > 0 ? Math.round(((cur - prev) / prev) * 100) : 0
         const title = ph.find(h => h.title)?.title || ''
         return { path, count, change, daily, title }
       })
 
+    // Top titles
+    const titleCounts = {}
+    filtered.forEach(h => {
+      if (h.title) {
+        titleCounts[h.title] = (titleCounts[h.title] || 0) + 1
+      }
+    })
+    const topTitles = Object.entries(titleCounts)
+      .sort((a, b) => b[1] - a[1]).slice(0, 10)
+      .map(([title, count]) => ({ title, count }))
+
+    // Referrer domains
+    const domainCounts = {}
+    filtered.forEach(h => {
+      let domain = 'direct'
+      if (h.referrer) {
+        try {
+          domain = new URL(h.referrer).hostname.replace(/^www\./, '')
+        } catch (_) {
+          domain = h.referrer
+        }
+      }
+      domainCounts[domain] = (domainCounts[domain] || 0) + 1
+    })
+    const referrerDomains = Object.entries(domainCounts)
+      .sort((a, b) => b[1] - a[1]).slice(0, 10)
+      .map(([domain, count]) => ({ domain, count }))
+
+    // Referrer URLs (raw, top 8)
     const refCounts = {}
-    hits.forEach(h => {
+    filtered.forEach(h => {
       const s = h.referrer || 'direct'
       refCounts[s] = (refCounts[s] || 0) + 1
     })
@@ -130,8 +209,9 @@ exports.handler = async (event) => {
         .map(([name, count]) => ({ name, count }))
     }
 
+    // Screen sizes
     const screenGroups = { '≤639': 0, '640–1023': 0, '1024–1439': 0, '1440+': 0 }
-    hits.forEach(h => {
+    filtered.forEach(h => {
       const w = h.screenWidth
       if (w < 640) screenGroups['≤639']++
       else if (w < 1024) screenGroups['640–1023']++
@@ -142,23 +222,70 @@ exports.handler = async (event) => {
       .filter(([_, c]) => c > 0)
       .map(([range, count]) => ({ name: range, count }))
 
+    // Device types
+    let mobile = 0, tablet = 0, desktop = 0
+    filtered.forEach(h => {
+      const w = h.screenWidth
+      if (w < 640) mobile++
+      else if (w < 1024) tablet++
+      else desktop++
+    })
+    const deviceTypes = []
+    if (mobile > 0) deviceTypes.push({ name: 'Mobile', count: mobile })
+    if (tablet > 0) deviceTypes.push({ name: 'Tablet', count: tablet })
+    if (desktop > 0) deviceTypes.push({ name: 'Desktop', count: desktop })
+
+    // Hourly activity (always 0-23, from filtered hits)
+    const hourly = new Array(24).fill(0)
+    filtered.forEach(h => {
+      hourly[new Date(h.time).getHours()]++
+    })
+    const hourlyActivity = hourly.map((count, hour) => ({ hour, count }))
+
+    // Search terms from query strings
+    const searchParams = ['q', 's', 'search', 'query', 'term', 'keyword']
+    const termCounts = {}
+    filtered.forEach(h => {
+      if (h.queryString) {
+        const qs = new URLSearchParams(h.queryString)
+        searchParams.forEach(param => {
+          const val = qs.get(param)
+          if (val) {
+            const raw = val.trim()
+            if (raw) {
+              termCounts[raw] = (termCounts[raw] || 0) + 1
+            }
+          }
+        })
+      }
+    })
+    const searchTerms = Object.entries(termCounts)
+      .sort((a, b) => b[1] - a[1]).slice(0, 10)
+      .map(([term, count]) => ({ term, count }))
+
     return {
       statusCode: 200,
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        totalViews: hits.length,
+        totalViews: filtered.length,
         uniqueVisitors: uniqueKeys.size,
         todayViews: todayHits.length,
         eventCount,
         botCount,
+        range,
         viewsOverTime,
         topPages,
+        topTitles,
+        referrerDomains,
         topReferrers,
-        browsers: group(hits, 'browser'),
-        systems: group(hits, 'os'),
-        languages: group(hits, 'lang'),
+        hourlyActivity,
+        deviceTypes,
+        browsers: group(filtered, 'browser'),
+        systems: group(filtered, 'os'),
+        languages: group(filtered, 'lang'),
         screenSizes,
-        recentViews: hits.slice(-25).reverse().map(h => ({
+        searchTerms,
+        recentViews: filtered.slice(-25).reverse().map(h => ({
           path: h.path,
           time: h.time,
           referrer: h.referrer || 'direct',
