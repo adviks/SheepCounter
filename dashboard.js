@@ -220,6 +220,27 @@ async function fetchStats() {
     setStatus('error')
   }
 }
+    if (!res.ok) {
+      // Check if it's a config error
+      if (res.status === 500) {
+        const errorData = await res.json()
+        if (errorData.error && errorData.error.includes('STATS_API_KEY not set')) {
+          els.statusText.textContent = 'Error: Please set STATS_API_KEY environment variable'
+          els.statusDot.className = 'status-dot error'
+          return
+        }
+      }
+      throw new Error('HTTP ' + res.status)
+    }
+    const data = await res.json()
+    updateDashboard(data)
+    setStatus('connected')
+    hideLogin()
+  } catch (err) {
+    console.error('SheepCounter: fetch failed', err)
+    setStatus('error')
+  }
+}
 
 const origin = location.origin
 const setupEndpoint = $('#setupEndpoint')

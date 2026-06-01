@@ -42,11 +42,13 @@ exports.handler = async (event) => {
     return { statusCode: 204, headers }
   }
 
-  if (API_KEY) {
-    const provided = event.queryStringParameters?.key || event.headers['x-api-key']
-    if (!provided || provided !== API_KEY) {
-      return { statusCode: 401, headers, body: JSON.stringify({ error: 'unauthorized' }) }
-    }
+  if (!API_KEY) {
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Server misconfigured: STATS_API_KEY not set' }) }
+  }
+
+  const provided = event.queryStringParameters?.key || event.headers['x-api-key']
+  if (!provided || provided !== API_KEY) {
+    return { statusCode: 401, headers, body: JSON.stringify({ error: 'unauthorized' }) }
   }
 
   try {
