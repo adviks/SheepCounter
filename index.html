@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SheepCounter — Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <h1 class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 13c0 2.5 1.5 5 5 5s5-2.5 5-5"/>
+          <path d="M5 10c0-2.5 1.5-5 5-5"/>
+          <path d="M14 5c3.5 0 5 2.5 5 5"/>
+          <path d="M12 8c0-2 3-3 5-1"/>
+          <path d="M11 12c0-1.5-2-2-3-1"/>
+          <path d="M12 12v4"/>
+          <path d="M10 14h4"/>
+        </svg>
+        SheepCounter
+      </h1>
+      <div class="header-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">loading</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="period">Last 7 days</div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-label">Visits</span>
+        <span class="stat-value" id="totalViews">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Today</span>
+        <span class="stat-value" id="todayViews">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Unique</span>
+        <span class="stat-value" id="uniqueVisitors">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Events</span>
+        <span class="stat-value" id="eventCount">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Bots</span>
+        <span class="stat-value" id="botCount">—</span>
+      </div>
+    </div>
+
+    <section class="card" id="pagesCard">
+      <div class="card-header">
+        <h2 class="card-title">Pages</h2>
+        <span class="card-subtitle" id="pagesSubtitle"></span>
+      </div>
+      <div class="card-body" id="topPages"><p class="empty">No data yet</p></div>
+    </section>
+
+    <div class="widgets">
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">Views over time</h2></div>
+        <div class="card-body" id="viewsOverTime"><p class="empty">Loading...</p></div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">Top referrers</h2></div>
+        <div class="card-body" id="topReferrers"><p class="empty">No data yet</p></div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">Browsers</h2></div>
+        <div class="card-body" id="browsers"><p class="empty">No data yet</p></div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">Systems</h2></div>
+        <div class="card-body" id="systems"><p class="empty">No data yet</p></div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">Languages</h2></div>
+        <div class="card-body" id="languages"><p class="empty">No data yet</p></div>
+      </section>
+      <section class="card">
+        <div class="card-header"><h2 class="card-title">Screen sizes</h2></div>
+        <div class="card-body" id="screenSizes"><p class="empty">No data yet</p></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-header"><h2 class="card-title">Recent views</h2></div>
+      <div class="card-body" id="recentViews"><p class="empty">No data yet</p></div>
+    </section>
+
+    <footer class="footer">
+      <span id="lastUpdated">Last updated: —</span>
+    </footer>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

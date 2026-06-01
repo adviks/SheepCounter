@@ -1,0 +1,23 @@
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/sheepcounter/stats"
+  to = "/.netlify/functions/stats"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/count"
+  to = "/.netlify/functions/count"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/health"
+  status = 200
+  force = true

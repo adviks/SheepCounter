@@ -1,0 +1,28 @@
+{
+  "name": "sheepcounter",
+  "version": "1.0.0",
+  "description": "Privacy-friendly web analytics tracker — forked from GoatCounter",
+  "license": "GPL-3.0-only",
+  "keywords": [
+    "analytics",
+    "privacy",
+    "tracking",
+    "self-hosted",
+    "static-site"
+  ],
+  "homepage": "https://github.com/your-username/sheepcounter",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/sheepcounter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/sheepcounter/issues"
+  },
+  "scripts": {
+    "dev": "npx netlify dev",
+    "start": "npx netlify dev"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0"
+  }
+}
