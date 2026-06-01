@@ -13,15 +13,6 @@ No cookies, no personal data tracking. Just page views, referrers, browsers, sys
 - **Click tracking** — track button clicks and custom events
 - **Bot detection** — automatic filtering of known bots
 
-## Quick start
-
-```bash
-npm install
-npx netlify dev
-```
-
-Open [http://localhost:8888](http://localhost:8888).
-
 ## Project structure
 
 ```
