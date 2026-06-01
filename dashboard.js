@@ -9,7 +9,7 @@ const API = (() => {
   return '/api/sheepcounter/stats'
 })()
 
-let currentRange = '7d'
+let currentRange = (document.querySelector('.period-btn.active') || {}).dataset.range || '7d'
 
 function getKey() { return sessionStorage.getItem('sheepcounter_key') || '' }
 function setKey(k) { sessionStorage.setItem('sheepcounter_key', k) }
