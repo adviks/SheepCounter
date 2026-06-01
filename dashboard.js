@@ -1,4 +1,4 @@
-const POLL_INTERVAL = 5000
+const POLL_INTERVAL = 60000
 const LOGIN_PAGE = '/login.html'
 
 const API = (() => {
@@ -45,14 +45,6 @@ const els = {
   recentViews: $('#recentViews'),
   recentSubtitle: $('#recentSubtitle'),
   lastUpdated: $('#lastUpdated'),
-  statusDot: $('#statusDot'),
-  statusText: $('#statusText'),
-}
-
-function setStatus(s) {
-  els.statusDot.className = 'status-dot ' + s
-  const m = { connected: 'Connected', loading: 'Connecting…', error: 'Error' }
-  els.statusText.textContent = m[s] || s
 }
 
 function ago(iso) {
@@ -230,7 +222,6 @@ async function fetchStats() {
   const key = getKey()
   if (!key) { redirectLogin(); return }
 
-  setStatus('loading')
   try {
     const url = new URL(API, location.origin)
     url.searchParams.set('range', currentRange)
@@ -239,10 +230,8 @@ async function fetchStats() {
     if (!res.ok) throw new Error('HTTP ' + res.status)
     const data = await res.json()
     updateDashboard(data)
-    setStatus('connected')
   } catch (err) {
     console.error('SheepCounter: fetch failed', err)
-    setStatus('error')
   }
 }
 

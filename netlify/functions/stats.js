@@ -43,32 +43,57 @@ function filterByRange(hits, range) {
   return hits
 }
 
-function buildPeriods(range) {
+function buildPeriods(hits, range) {
   const now = new Date()
   const periods = []
   if (range === '24h') {
     for (let i = 23; i >= 0; i--) {
       const d = new Date(now)
       d.setHours(d.getHours() - i, 0, 0, 0)
-      periods.push(d)
+      periods.push({ date: d, spanMs: 60 * 60 * 1000 })
     }
-  } else {
-    const n = range === '30d' ? 30 : range === 'all' ? 30 : 7
-    for (let i = n - 1; i >= 0; i--) {
+  } else if (range === '7d') {
+    for (let i = 6; i >= 0; i--) {
       const d = new Date(now)
       d.setDate(d.getDate() - i)
       d.setHours(0, 0, 0, 0)
-      periods.push(d)
+      periods.push({ date: d, spanMs: 24 * 60 * 60 * 1000 })
+    }
+  } else if (range === '30d') {
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i)
+      d.setHours(0, 0, 0, 0)
+      periods.push({ date: d, spanMs: 24 * 60 * 60 * 1000 })
+    }
+  } else if (range === 'all') {
+    if (!hits || hits.length === 0) return periods
+    const oldest = new Date(hits[0].time)
+    const totalDays = Math.ceil((now - oldest) / (24 * 60 * 60 * 1000))
+    const stepDays = totalDays > 180 ? 30 : totalDays > 60 ? 7 : 1
+    const numPeriods = Math.ceil(totalDays / stepDays)
+    for (let i = numPeriods; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - (i * stepDays))
+      d.setHours(0, 0, 0, 0)
+      periods.push({ date: d, spanMs: stepDays * 24 * 60 * 60 * 1000 })
     }
   }
   return periods
 }
 
-function periodLabel(d, range) {
+function periodLabel(p, range) {
+  const d = p.date
   if (range === '24h') {
     return d.getHours().toString().padStart(2, '0') + ':00'
   }
-  if (range === '30d' || range === 'all') {
+  if (range === 'all') {
+    const days = p.spanMs / (24 * 60 * 60 * 1000)
+    if (days >= 30) return d.toLocaleDateString('en', { month: 'short' })
+    if (days >= 7) return (d.getMonth() + 1) + '/' + d.getDate()
+    return (d.getMonth() + 1) + '/' + d.getDate()
+  }
+  if (range === '30d') {
     return (d.getMonth() + 1) + '/' + d.getDate()
   }
   return d.toLocaleDateString('en', { weekday: 'short' })
@@ -123,15 +148,13 @@ exports.handler = async (event) => {
     const botCount = filtered.filter(h => h.bot > 0).length
 
     // Views over time (period buckets)
-    const periods = buildPeriods(range)
-    const viewsOverTime = periods.map(d => {
-      const end = range === '24h'
-        ? new Date(d.getTime() + 60 * 60 * 1000)
-        : new Date(d.getTime() + 24 * 60 * 60 * 1000)
+    const periods = buildPeriods(hits, range)
+    const viewsOverTime = periods.map(p => {
+      const end = new Date(p.date.getTime() + p.spanMs)
       return {
-        date: d.toISOString(),
-        count: countInRange(filtered, d, end),
-        label: periodLabel(d, range),
+        date: p.date.toISOString(),
+        count: countInRange(filtered, p.date, end),
+        label: periodLabel(p, range),
       }
     })
 
@@ -147,11 +170,9 @@ exports.handler = async (event) => {
       .sort((a, b) => b[1] - a[1]).slice(0, 10)
       .map(([path, count]) => {
         const ph = pageHits[path]
-        const daily = periods.map(d => {
-          const end = range === '24h'
-            ? new Date(d.getTime() + 60 * 60 * 1000)
-            : new Date(d.getTime() + 24 * 60 * 60 * 1000)
-          return ph.filter(h => { const t = new Date(h.time); return t >= d && t < end }).length
+        const daily = periods.map(p => {
+          const end = new Date(p.date.getTime() + p.spanMs)
+          return ph.filter(h => { const t = new Date(h.time); return t >= p.date && t < end }).length
         })
         const cur = daily.slice(-3).reduce((a, b) => a + b, 0)
         const prev = daily.slice(0, daily.length - 3).reduce((a, b) => a + b, 0)

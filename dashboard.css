@@ -54,19 +54,6 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-.header-status {
-  display: flex; align-items: center; gap: 6px; font-size: 12px;
-  color: #999;
-}
-.status-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #ccc; transition: background 0.3s;
-}
-.status-dot.connected { background: #6aad6a; }
-.status-dot.error     { background: #c94444; }
-.status-dot.loading   { background: #c9955e; animation: pulse 1s ease-in-out infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
-
 /* ── Layout ── */
 .main {
   max-width: 1200px; margin: 0 auto;
@@ -172,9 +159,11 @@ body {
   gap: 3px;
   height: 130px;
   padding: 6px 0 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .bar-col {
-  flex: 1;
+  flex: 0 0 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -184,7 +173,6 @@ body {
 }
 .bar {
   width: 100%;
-  max-width: 32px;
   background: #6aad6a;
   border-radius: 3px 3px 0 0;
   min-height: 2px;
